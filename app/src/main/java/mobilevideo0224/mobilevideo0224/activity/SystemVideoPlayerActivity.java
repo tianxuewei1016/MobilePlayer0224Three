@@ -2,6 +2,7 @@ package mobilevideo0224.mobilevideo0224.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
@@ -679,13 +681,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
                 updateVoice(isMute);
                 break;
             case R.id.btn_swiche_player:
-                if (isFullScreen) {
-                    //默认
-                    setVideoType(DEFUALT_SCREEN);
-                } else {
-                    //全屏
-                    setVideoType(FULL_SCREEN);
-                }
+                switchPlayer();
                 break;
             case R.id.btn_exit:
                 finish();
@@ -701,10 +697,32 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
                 setNextVideo();
                 break;
             case R.id.btn_swich_screen:
+                if (isFullScreen) {
+                    //默认
+                    setVideoType(DEFUALT_SCREEN);
+                } else {
+                    //全屏
+                    setVideoType(FULL_SCREEN);
+                }
                 break;
         }
         handler.removeMessages(HIDE_MEDIACONTROLLER);
         handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
+    }
+
+    /**
+     * 自带播放器不能播放提示,并且跳转到万能播放器
+     */
+    private void switchPlayer() {
+        new AlertDialog.Builder(this)
+                .setTitle("提示")
+                .setMessage("当前使用系统播放器播放，当播放有声音没有画面，请切换到万能播放器播放")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startVitamioPlayer();
+                    }
+                }).setNegativeButton("取消",null).show();
     }
 
     private void updateVoice(boolean isMute) {
