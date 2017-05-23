@@ -10,9 +10,11 @@ import android.widget.TextView;
 import org.xutils.image.ImageOptions;
 import org.xutils.x;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mobilevideo0224.mobilevideo0224.R;
+import mobilevideo0224.mobilevideo0224.bean.MediaItem;
 import mobilevideo0224.mobilevideo0224.bean.MoveInfo;
 
 /**
