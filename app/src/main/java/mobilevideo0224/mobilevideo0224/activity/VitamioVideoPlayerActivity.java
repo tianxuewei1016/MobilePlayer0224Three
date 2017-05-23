@@ -1,11 +1,11 @@
 package mobilevideo0224.mobilevideo0224.activity;
 
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,12 +31,15 @@ import java.util.Date;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.Vitamio;
 import mobilevideo0224.mobilevideo0224.R;
 import mobilevideo0224.mobilevideo0224.bean.MediaItem;
 import mobilevideo0224.mobilevideo0224.utils.Utils;
-import mobilevideo0224.mobilevideo0224.view.VideoView;
+import mobilevideo0224.mobilevideo0224.view.VitamioVideoView;
 
-public class SystemVideoPlayerActivity extends AppCompatActivity {
+
+public class VitamioVideoPlayerActivity extends AppCompatActivity {
 
     /**
      * 视频进度更新
@@ -94,7 +97,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
     private boolean isNetUri = true;
 
     @InjectView(R.id.vv)
-    VideoView vv;
+    VitamioVideoView vv;
     @InjectView(R.id.tv_name)
     TextView tvName;
     @InjectView(R.id.iv_battery)
@@ -160,17 +163,17 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             super.handleMessage(msg);
             switch (msg.what) {
                 case SHOW_NET_SPEED:
-                    if (isNetUri) {
-                        String netSpeed = utils.getNetSpeed(SystemVideoPlayerActivity.this);
-                        tvLoadingNetSpeed.setText("正在加载中" + netSpeed);
+                    if(isNetUri) {
+                        String netSpeed = utils.getNetSpeed(VitamioVideoPlayerActivity.this);
+                        tvLoadingNetSpeed.setText("正在加载中"+netSpeed);
                         tvNetSpeed.setText("正在缓存中" + netSpeed);
-                        sendEmptyMessageDelayed(SHOW_NET_SPEED, 1000);
+                        sendEmptyMessageDelayed(SHOW_NET_SPEED,1000);
                     }
                     break;
 
                 case PROGRESS:
                     //得到当前的进度
-                    int currentPosition = vv.getCurrentPosition();
+                    int currentPosition = (int) vv.getCurrentPosition();
                     //让SeekBar进度更新
                     seekbarVideo.setProgress(currentPosition);
 
@@ -228,9 +231,11 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_system_video_player);
+        //初始化解码器
+        Vitamio.isInitialized(getApplicationContext());
+        setContentView(R.layout.activity_vitamio_video_player);
         ButterKnife.inject(this);
-        vv = (VideoView) findViewById(R.id.vv);
+        vv = (VitamioVideoView) findViewById(R.id.vv);
 
         initData();
         //关联最大音量
@@ -494,7 +499,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
                 videoWidth = mp.getVideoWidth();
                 videoHeight = mp.getVideoHeight();
                 //得到视频的总时间=长
-                int duration = vv.getDuration();
+                int duration = (int) vv.getDuration();
                 seekbarVideo.setMax(duration);
 
                 //设置文本总时间
@@ -520,8 +525,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
                 //Toast.makeText(SystemVideoPlayerActivity.this, "播放出错了...", Toast.LENGTH_SHORT).show();
-                startVitamioPlayer();
-                return true;
+
+                return false;
             }
         });
 
@@ -587,27 +592,6 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    /**
-     * 播放出错,跳转到万能播放器
-     */
-    private void startVitamioPlayer() {
-        if (vv != null) {
-            vv.stopPlayback();
-        }
-        Intent intent = new Intent(this, VitamioVideoPlayerActivity.class);
-        if (mediaItems != null && mediaItems.size() > 0) {
-            Bundle bunlder = new Bundle();
-            bunlder.putSerializable("videolist", mediaItems);
-            intent.putExtra("position", position);
-            //放入Bundler
-            intent.putExtras(bunlder);
-        } else if (uri != null) {
-            intent.setData(uri);
-        }
-        startActivity(intent);
-        finish();//关闭系统播放器
     }
 
     /**

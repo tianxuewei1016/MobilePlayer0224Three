@@ -279,6 +279,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.VitamioVideoPlayerActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:theme="@style/noAnimation_Theme"></activity>
     </application>
 
 </manifest>
