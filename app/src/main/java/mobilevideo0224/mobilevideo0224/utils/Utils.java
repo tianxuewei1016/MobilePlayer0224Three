@@ -51,31 +51,11 @@ public class Utils {
     }
 
     /**
-     * 是否是网络资源
-     *
-     * @param url
-     * @return
-     */
-    public boolean isNetUrl(String url) {
-        boolean result = false;
-        if (url != null) {
-
-            if (url.toLowerCase().startsWith("http")
-                    || url.toLowerCase().startsWith("rtsp")
-                    || url.toLowerCase().startsWith("mms")) {
-                result = true;
-            }
-        }
-        return result;
-    }
-
-
-    /**
      * 显示网络速度
      * @param context
      * @return
      */
-    public String showNetSpeed(Context context) {
+    public String getNetSpeed(Context context) {
 
         long nowTotalRxBytes = TrafficStats.getUidRxBytes(context.getApplicationInfo().uid) == TrafficStats.UNSUPPORTED ? 0 : (TrafficStats.getTotalRxBytes() / 1024);//转为KB;
         long nowTimeStamp = System.currentTimeMillis();
