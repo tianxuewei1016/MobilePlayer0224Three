@@ -323,6 +323,15 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
         maxVoice = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
     }
 
+    //起始的坐标
+    private float dowY;
+    /**
+     * 滑动的初始声音
+     */
+    private int mVol;
+
+    private float touchRang;
+
     /**
      * 触摸事件
      *
@@ -334,6 +343,34 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
         //把事件交给手势识别器去解析
         detector.onTouchEvent(event);
         super.onTouchEvent(event);
+        switch(event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                //记录起始的坐标
+                dowY = event.getY();
+                mVol = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                touchRang = Math.min(screenHeight,screenWidth);
+                handler.removeMessages(HIDE_MEDIACONTROLLER);
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                //滑动到新的坐标的位置
+                float endY = event.getY();
+                //计算滑动的距离
+                float distanceY = endY - dowY;
+                float delta = (distanceY/touchRang)*maxVoice;
+
+                if(delta != 0) {
+                    //最终的声音
+                    int mVoice = (int) Math.min(Math.max(mVol+delta,0),maxVoice);
+                    updateVoiceProgress(mVoice);
+                }
+
+                break;
+            case MotionEvent.ACTION_UP:
+            handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER,4000);
+                break;
+
+        }
         return true;
     }
 
