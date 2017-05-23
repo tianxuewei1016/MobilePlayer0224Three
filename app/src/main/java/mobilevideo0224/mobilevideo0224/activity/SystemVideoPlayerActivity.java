@@ -54,6 +54,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
      * 全屏视频画面
      */
     private static final int FULL_SCREEN = 1;
+
     /**
      * 是否全屏
      */
@@ -124,6 +125,14 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
     LinearLayout llBottom;
     @InjectView(R.id.activity_system_video_player)
     RelativeLayout activitySystemVideoPlayer;
+    @InjectView(R.id.tv_loading_net_speed)
+    TextView tvLoadingNetSpeed;
+    @InjectView(R.id.ll_loading)
+    LinearLayout llLoading;
+    @InjectView(R.id.tv_net_speed)
+    TextView tvNetSpeed;
+    @InjectView(R.id.ll_buffering)
+    LinearLayout llBuffering;
 
     private Utils utils;
     private MyBroadCastReceiver receiver;
@@ -138,6 +147,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
      * 手势识别器
      */
     private GestureDetector detector;
+
+    private int preCurrentPosition;
 
     private Handler handler = new Handler() {
         @Override
@@ -155,14 +166,28 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
 
                     //得到系统的时间
                     tvSystetime.setText(getSystemTime());
-                    
-                    if(isNetUri) {
+
+                    if (isNetUri) {
                         int bufferPercentage = vv.getBufferPercentage();
                         int totalBuffer = bufferPercentage * seekbarVideo.getMax();
-                        int secondaryProgress  = totalBuffer / 100;
+                        int secondaryProgress = totalBuffer / 100;
                         seekbarVideo.setSecondaryProgress(secondaryProgress);
-                    }else{
+                    } else {
                         seekbarVideo.setSecondaryProgress(0);
+                    }
+                    /**
+                     * 是否卡顿
+                     */
+                    if(isNetUri && vv.isPlaying()) {
+                        int duration  = currentPosition - preCurrentPosition;
+                        if(duration < 500) {
+                            //卡
+                            llBuffering.setVisibility(View.VISIBLE);
+                        }else{
+                            llBuffering.setVisibility(View.GONE);
+                        }
+                        //最后想着赋值
+                        preCurrentPosition = currentPosition;
                     }
 
                     //循环发消息
@@ -216,12 +241,12 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             MediaItem mediaItem = mediaItems.get(position);
             tvName.setText(mediaItem.getName());
             vv.setVideoPath(mediaItem.getData());
-            isNetUri =  utils.isNetUri(mediaItem.getData());
+            isNetUri = utils.isNetUri(mediaItem.getData());
         } else if (uri != null) {
             //设置播放的地址
             vv.setVideoURI(uri);
             tvName.setText(uri.toString());
-            isNetUri =  utils.isNetUri(uri.toString());
+            isNetUri = utils.isNetUri(uri.toString());
         }
 
         setButtonStatus();
@@ -360,12 +385,12 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
         //把事件交给手势识别器去解析
         detector.onTouchEvent(event);
         super.onTouchEvent(event);
-        switch(event.getAction()){
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //记录起始的坐标
                 dowY = event.getY();
                 mVol = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                touchRang = Math.min(screenHeight,screenWidth);
+                touchRang = Math.min(screenHeight, screenWidth);
                 handler.removeMessages(HIDE_MEDIACONTROLLER);
 
                 break;
@@ -374,17 +399,17 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
                 float endY = event.getY();
                 //计算滑动的距离
                 float distanceY = endY - dowY;
-                float delta = (distanceY/touchRang)*maxVoice;
+                float delta = (distanceY / touchRang) * maxVoice;
 
-                if(delta != 0) {
+                if (delta != 0) {
                     //最终的声音
-                    int mVoice = (int) Math.min(Math.max(mVol+delta,0),maxVoice);
+                    int mVoice = (int) Math.min(Math.max(mVol + delta, 0), maxVoice);
                     updateVoiceProgress(mVoice);
                 }
 
                 break;
             case MotionEvent.ACTION_UP:
-            handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER,4000);
+                handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
                 break;
 
         }
@@ -523,12 +548,12 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
 
             }
         });
-        
+
         //监听拖动声音
         seekbarVoice.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser) {
+                if (fromUser) {
                     updateVoiceProgress(progress);
                 }
             }
@@ -547,18 +572,19 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
 
     /**
      * 设置滑动改变声音
+     *
      * @param progress
      */
     private void updateVoiceProgress(int progress) {
 
         currentVoice = progress;
         //真正改变的声音
-        am.setStreamVolume(AudioManager.STREAM_MUSIC,currentVoice,0);
+        am.setStreamVolume(AudioManager.STREAM_MUSIC, currentVoice, 0);
         //改变进度条
         seekbarVoice.setProgress(currentVoice);
-        if(currentVoice<=0) {
+        if (currentVoice <= 0) {
             isMute = true;
-        }else{
+        } else {
             isMute = false;
         }
     }
@@ -569,7 +595,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             if (position > 0) {
                 //还是在列表范围的内容
                 MediaItem mediaItem = mediaItems.get(position);
-                isNetUri =  utils.isNetUri(mediaItem.getData());
+                isNetUri = utils.isNetUri(mediaItem.getData());
                 vv.setVideoPath(mediaItem.getData());
                 tvName.setText(mediaItem.getName());
 
@@ -588,7 +614,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             position++;
             if (position < mediaItems.size()) {
                 MediaItem mediaItem = mediaItems.get(position);
-                isNetUri =  utils.isNetUri(mediaItem.getData());
+                isNetUri = utils.isNetUri(mediaItem.getData());
                 vv.setVideoPath(mediaItem.getData());
                 tvName.setText(mediaItem.getName());
 
@@ -600,8 +626,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             }
         }
     }
-    
-    
+
 
     @OnClick({R.id.btn_voice, R.id.btn_swiche_player, R.id.btn_exit, R.id.btn_pre, R.id.btn_start_pause, R.id.btn_next, R.id.btn_swich_screen})
     public void onViewClicked(View view) {
@@ -641,13 +666,13 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
     }
 
     private void updateVoice(boolean isMute) {
-        if(isMute) {
+        if (isMute) {
             //静音
-            am.setStreamVolume(AudioManager.STREAM_MUSIC,0,0);
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
             seekbarVoice.setProgress(0);
-        }else {
+        } else {
             //非静音
-            am.setStreamVolume(AudioManager.STREAM_MUSIC,currentVoice,0);
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, currentVoice, 0);
             seekbarVoice.setProgress(currentVoice);
         }
     }
@@ -688,24 +713,25 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
 
     /**
      * 手机声音健改变声音
+     *
      * @param keyCode
      * @param event
      * @return
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             currentVoice--;
             updateVoiceProgress(currentVoice);
             handler.removeMessages(HIDE_MEDIACONTROLLER);
-            handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER,4000);
+            handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
             return true;
 
-        }else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             currentVoice++;
             updateVoiceProgress(currentVoice);
             handler.removeMessages(HIDE_MEDIACONTROLLER);
-            handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER,4000);
+            handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER, 4000);
             return true;
 
         }
