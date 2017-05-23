@@ -44,7 +44,7 @@ public class NetVideoFragment extends BaseFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MoveInfo.TrailersBean item = adapter.getItem(position);
                 Intent intent = new Intent(mContext, SystemVideoPlayerActivity.class);
-                intent.setDataAndType(Uri.parse(item.getUrl()),"video/*");
+                intent.setDataAndType(Uri.parse(item.getUrl()), "video/*");
                 startActivity(intent);
             }
         });

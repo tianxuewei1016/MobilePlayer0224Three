@@ -83,6 +83,10 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
      * 是否静音--false
      */
     private boolean isMute = false;
+    /**
+     * 是否是网络的资源
+     */
+    private boolean isNetUri;
 
     @InjectView(R.id.vv)
     VideoView vv;
@@ -151,6 +155,15 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
 
                     //得到系统的时间
                     tvSystetime.setText(getSystemTime());
+                    
+                    if(isNetUri) {
+                        int bufferPercentage = vv.getBufferPercentage();
+                        int totalBuffer = bufferPercentage * seekbarVideo.getMax();
+                        int secondaryProgress  = totalBuffer / 100;
+                        seekbarVideo.setSecondaryProgress(secondaryProgress);
+                    }else{
+                        seekbarVideo.setSecondaryProgress(0);
+                    }
 
                     //循环发消息
                     sendEmptyMessageDelayed(PROGRESS, 1000);
@@ -203,9 +216,12 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             MediaItem mediaItem = mediaItems.get(position);
             tvName.setText(mediaItem.getName());
             vv.setVideoPath(mediaItem.getData());
+            isNetUri =  utils.isNetUri(mediaItem.getData());
         } else if (uri != null) {
             //设置播放的地址
             vv.setVideoURI(uri);
+            tvName.setText(uri.toString());
+            isNetUri =  utils.isNetUri(uri.toString());
         }
 
         setButtonStatus();
@@ -553,6 +569,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             if (position > 0) {
                 //还是在列表范围的内容
                 MediaItem mediaItem = mediaItems.get(position);
+                isNetUri =  utils.isNetUri(mediaItem.getData());
                 vv.setVideoPath(mediaItem.getData());
                 tvName.setText(mediaItem.getName());
 
@@ -571,6 +588,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             position++;
             if (position < mediaItems.size()) {
                 MediaItem mediaItem = mediaItems.get(position);
+                isNetUri =  utils.isNetUri(mediaItem.getData());
                 vv.setVideoPath(mediaItem.getData());
                 tvName.setText(mediaItem.getName());
 
