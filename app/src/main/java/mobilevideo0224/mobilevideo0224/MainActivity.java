@@ -18,6 +18,7 @@ import mobilevideo0224.mobilevideo0224.fragment.LocalAudioFragment;
 import mobilevideo0224.mobilevideo0224.fragment.LocalVideoFragment;
 import mobilevideo0224.mobilevideo0224.fragment.NetAudioFragment;
 import mobilevideo0224.mobilevideo0224.fragment.NetVideoFragment;
+import mobilevideo0224.mobilevideo0224.fragment.RecyclerViewFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         fragments.add(new LocalAudioFragment());//本地音乐
         fragments.add(new NetAudioFragment());//网络音乐
         fragments.add(new NetVideoFragment());//网络视频
+        fragments.add(new RecyclerViewFragment());//RecyclerView
     }
 
     private void initListenter() {
@@ -68,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.rb_net_video:
                         position = 3;
+                        break;
+                    case R.id.rb_recyclerview:
+                        position = 4;
                         break;
                 }
                 //根据位置得到相应的Fragment

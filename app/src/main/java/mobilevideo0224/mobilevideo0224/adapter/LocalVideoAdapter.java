@@ -24,6 +24,10 @@ public class LocalVideoAdapter extends BaseAdapter {
 
     private final Context mContext;
     private final ArrayList<MediaItem> datas;
+    /**
+     *  true:视频
+     *  false:音频
+     */
     private final boolean isVideo;
     private Utils utils;
 
@@ -67,8 +71,13 @@ public class LocalVideoAdapter extends BaseAdapter {
         //根据位置得到对应的数据
         MediaItem mediaItem = datas.get(position);
         viewHolder.tv_name.setText(mediaItem.getName());
-        viewHolder.tv_size.setText(Formatter.formatFileSize(mContext,mediaItem.getSize()));
+        viewHolder.tv_size.setText(Formatter.formatFileSize(mContext, mediaItem.getSize()));
         viewHolder.tv_duration.setText(utils.stringForTime((int) mediaItem.getDuration()));
+
+        if(!isVideo) {
+            //音频
+            viewHolder.iv_icon.setImageResource(R.drawable.music_default_bg);
+        }
 
         return convertView;
     }
