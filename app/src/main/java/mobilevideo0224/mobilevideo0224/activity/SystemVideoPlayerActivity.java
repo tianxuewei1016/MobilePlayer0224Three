@@ -13,6 +13,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -581,6 +582,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
             }
         }
     }
+    
+    
 
     @OnClick({R.id.btn_voice, R.id.btn_swiche_player, R.id.btn_exit, R.id.btn_pre, R.id.btn_start_pause, R.id.btn_next, R.id.btn_swich_screen})
     public void onViewClicked(View view) {
@@ -663,6 +666,32 @@ public class SystemVideoPlayerActivity extends AppCompatActivity {
                 vv.setVideoSize(width, height);
                 break;
         }
+    }
+
+    /**
+     * 手机声音健改变声音
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            currentVoice--;
+            updateVoiceProgress(currentVoice);
+            handler.removeMessages(HIDE_MEDIACONTROLLER);
+            handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER,4000);
+            return true;
+
+        }else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            currentVoice++;
+            updateVoiceProgress(currentVoice);
+            handler.removeMessages(HIDE_MEDIACONTROLLER);
+            handler.sendEmptyMessageDelayed(HIDE_MEDIACONTROLLER,4000);
+            return true;
+
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void setStartOrPause() {
