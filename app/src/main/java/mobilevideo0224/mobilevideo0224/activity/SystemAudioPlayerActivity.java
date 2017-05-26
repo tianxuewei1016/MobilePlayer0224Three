@@ -62,6 +62,8 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
     private Utils utils;
     private final static int PROGRESS = 0;
 
+    private boolean notification;
+
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -95,7 +97,12 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
             //这个就是stub，stub包含很多方法，这些方法调用服务的方法
             service = IMusicPlayService.Stub.asInterface(iBinder);
             try {
-                service.openAudio(position);
+                if(notification) {
+                    //什么不用做
+                    setViewData();
+                }else{
+                    service.openAudio(position);//打开播放第0个音频
+                }
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -195,7 +202,10 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
     }
 
     private void getData() {
-        position = getIntent().getIntExtra("position", 0);
+        notification = getIntent().getBooleanExtra("notification", false);
+        if(!notification) {
+            position = getIntent().getIntExtra("position", 0);
+        }
     }
 
     @OnClick({R.id.btn_playmode, R.id.btn_pre, R.id.btn_start_pause, R.id.btn_next, R.id.btn_lyric})
