@@ -117,12 +117,41 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_system_audio_player);
         ButterKnife.inject(this);
         initData();
+        setListener();
 
         ivIcon.setBackgroundResource(R.drawable.animation_bg);
         AnimationDrawable drawable = (AnimationDrawable) ivIcon.getBackground();
         drawable.start();
         getData();
         startAndBindService();
+    }
+
+    private void setListener() {
+        seekbarAudio.setOnSeekBarChangeListener(new MyOnSeekBarChangeListener());
+    }
+
+    class MyOnSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener{
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            try {
+                if(fromUser) {
+                    service.seekTo(progress);
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+        }
     }
 
     private void initData() {
