@@ -16,6 +16,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 
 import mobilevideo0224.mobilevideo0224.IMusicPlayService;
@@ -236,7 +238,8 @@ public class MusicPlayService extends Service {
         @Override
         public void onPrepared(MediaPlayer mp) {
             //发广播
-            notifyChange(OPEN_COMPLETE);
+//            notifyChange(OPEN_COMPLETE);
+            EventBus.getDefault().post(mediaItem);
             start();
         }
     }

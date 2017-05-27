@@ -21,11 +21,16 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import mobilevideo0224.mobilevideo0224.IMusicPlayService;
 import mobilevideo0224.mobilevideo0224.R;
+import mobilevideo0224.mobilevideo0224.bean.MediaItem;
 import mobilevideo0224.mobilevideo0224.service.MusicPlayService;
 import mobilevideo0224.mobilevideo0224.utils.Utils;
 
@@ -99,9 +104,11 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
             try {
                 if (notification) {
                     //什么不用做
-                    setViewData();
+                    setViewData(null);
                 } else {
                     service.openAudio(position);//打开播放第0个音频
+                    tvArtist.setText(service.getArtistName());
+                    tvAudioname.setText(service.getAudioName());
                 }
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -169,6 +176,8 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
         registerReceiver(receiver, intentFilter);
 
         utils = new Utils();
+        //1.注册EventButs
+        EventBus.getDefault().register(this);
     }
 
     class MyReceiver extends BroadcastReceiver {
@@ -176,15 +185,14 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             //主线程
-            setViewData();
+            setViewData(null);
         }
     }
-
-    private void setViewData() {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setViewData(MediaItem mediaItem) {
         try {
             setButtonImage();
-            tvArtist.setText(service.getArtistName());
-            tvAudioname.setText(service.getAudioName());
+
             int duration = service.getDuration();
             seekbarAudio.setMax(duration);
         } catch (RemoteException e) {
@@ -295,6 +303,8 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
             unregisterReceiver(receiver);
             receiver = null;
         }
+        //2.取消注册EventBus
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 }
