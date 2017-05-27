@@ -74,14 +74,14 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
                         int currentPosition = service.getCurrentPosition();
                         seekbarAudio.setProgress(currentPosition);
                         //设置更新时间
-                        tvTime.setText(utils.stringForTime(currentPosition)+"/"+utils.stringForTime(service.getDuration()));
+                        tvTime.setText(utils.stringForTime(currentPosition) + "/" + utils.stringForTime(service.getDuration()));
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
 
                     //每秒钟更新一次
                     removeMessages(PROGRESS);
-                    sendEmptyMessageDelayed(PROGRESS,1000);
+                    sendEmptyMessageDelayed(PROGRESS, 1000);
                     break;
             }
         }
@@ -97,10 +97,10 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
             //这个就是stub，stub包含很多方法，这些方法调用服务的方法
             service = IMusicPlayService.Stub.asInterface(iBinder);
             try {
-                if(notification) {
+                if (notification) {
                     //什么不用做
                     setViewData();
-                }else{
+                } else {
                     service.openAudio(position);//打开播放第0个音频
                 }
             } catch (RemoteException e) {
@@ -137,12 +137,12 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
         seekbarAudio.setOnSeekBarChangeListener(new MyOnSeekBarChangeListener());
     }
 
-    class MyOnSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener{
+    class MyOnSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             try {
-                if(fromUser) {
+                if (fromUser) {
                     service.seekTo(progress);
                 }
             } catch (RemoteException e) {
@@ -166,7 +166,7 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
         receiver = new MyReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MusicPlayService.OPEN_COMPLETE);
-        registerReceiver(receiver,intentFilter);
+        registerReceiver(receiver, intentFilter);
 
         utils = new Utils();
     }
@@ -182,6 +182,7 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
 
     private void setViewData() {
         try {
+            setButtonImage();
             tvArtist.setText(service.getArtistName());
             tvAudioname.setText(service.getAudioName());
             int duration = service.getDuration();
@@ -203,7 +204,7 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
 
     private void getData() {
         notification = getIntent().getBooleanExtra("notification", false);
-        if(!notification) {
+        if (!notification) {
             position = getIntent().getIntExtra("position", 0);
         }
     }
@@ -215,6 +216,11 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
                 setPlayMode();
                 break;
             case R.id.btn_pre:
+                try {
+                    service.pre();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.btn_start_pause:
                 try {
@@ -234,6 +240,11 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.btn_next:
+                try {
+                    service.next();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.btn_lyric:
                 break;
@@ -243,11 +254,11 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
     private void setPlayMode() {
         try {
             int playmode = service.getPlaymode();
-            if(playmode == MusicPlayService.REPEAT_NORMAL) {
+            if (playmode == MusicPlayService.REPEAT_NORMAL) {
                 playmode = MusicPlayService.REPEAT_SINGLE;
-            }else if(playmode == MusicPlayService.REPEAT_SINGLE) {
+            } else if (playmode == MusicPlayService.REPEAT_SINGLE) {
                 playmode = MusicPlayService.REPEAT_ALL;
-            }else if(playmode == MusicPlayService.REPEAT_ALL) {
+            } else if (playmode == MusicPlayService.REPEAT_ALL) {
                 playmode = MusicPlayService.REPEAT_NORMAL;
             }
             //保存到服务里面
@@ -261,11 +272,11 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
     private void setButtonImage() {
         try {
             int playmode = service.getPlaymode();
-            if(playmode == MusicPlayService.REPEAT_NORMAL) {
+            if (playmode == MusicPlayService.REPEAT_NORMAL) {
                 btnPlaymode.setBackgroundResource(R.drawable.btn_playmode_normal_selector);
-            }else if(playmode == MusicPlayService.REPEAT_SINGLE) {
+            } else if (playmode == MusicPlayService.REPEAT_SINGLE) {
                 btnPlaymode.setBackgroundResource(R.drawable.btn_playmode_single_selector);
-            }else if(playmode == MusicPlayService.REPEAT_ALL) {
+            } else if (playmode == MusicPlayService.REPEAT_ALL) {
                 btnPlaymode.setBackgroundResource(R.drawable.btn_playmode_all_selector);
             }
         } catch (RemoteException e) {
@@ -280,7 +291,7 @@ public class SystemAudioPlayerActivity extends AppCompatActivity {
             conon = null;
         }
         //广播取消注册
-        if(receiver != null) {
+        if (receiver != null) {
             unregisterReceiver(receiver);
             receiver = null;
         }
